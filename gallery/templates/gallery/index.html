@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shalin Bhavsar — Pencil & Ink</title>
+<meta name="description" content="Portfolio of self-taught pencil and ink artist Shalin Bhavsar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'gallery/site.css' %}">
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <nav>
+    <div class="logo">Shalin <span>Bhavsar</span></div>
+    <div class="navlinks">
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="eyebrow mono">CHARACTER &amp; COSTUME DESIGN — TRADITIONAL MEDIA</div>
+      <h1>Graphite, ink,<br> and <em>whatever</em><br> the page needs.</h1>
+      <p class="lead">I'm Shalin Bhavsar — I design characters and costume by hand. Blue pencil to build the figure, graphite or ink to resolve it, colour last. Self-taught, one page at a time.</p>
+      <div class="hero-cta">
+        <a href="#work" class="btn btn-primary">View the work</a>
+        <a href="#about" class="btn btn-ghost">About the artist</a>
+      </div>
+    </div>
+    <figure class="hero-figure" id="heroFigure">
+      <div class="frame">
+        <img id="heroImg" src="" alt="">
+        <figcaption>
+          <span id="heroMedium"></span>
+          <span id="heroDate"></span>
+        </figcaption>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<svg class="stroke-divider" viewBox="0 0 1180 34" preserveAspectRatio="none"><path d="M0 17 Q 60 4, 120 18 T 240 16 T 360 19 T 480 15 T 600 18 T 720 16 T 840 19 T 960 15 T 1080 18 T 1180 17"/></svg>
+
+<section id="work">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <h2>Selected work</h2>
+        <p>Original character and costume design first, then the studies behind it, then finished rendering.</p>
+      </div>
+      <div class="index-no mono" id="countLabel">{{ work_count }} pieces</div>
+    </div>
+
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="design">Design</button>
+      <button class="filter-btn" data-filter="studies">Studies</button>
+      <button class="filter-btn" data-filter="rendered">Rendered</button>
+      <button class="filter-btn" data-filter="graphite">Graphite</button>
+      <button class="filter-btn" data-filter="ink">Ink</button>
+      <button class="filter-btn" data-filter="colour">Colour</button>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+  </div>
+</section>
+
+<svg class="stroke-divider" viewBox="0 0 1180 34" preserveAspectRatio="none"><path d="M0 17 Q 60 30, 120 16 T 240 18 T 360 15 T 480 19 T 600 16 T 720 18 T 840 15 T 960 19 T 1080 16 T 1180 17"/></svg>
+
+<section id="about" class="about">
+  <div class="about-inner">
+    <div>
+      <h2>About</h2>
+      <p>I'm a self-taught artist working on paper — no formal training, just a lot of pages. I design costume and armour from the body out: how a plate follows a deltoid, where a seam has to break so the arm can move, what a silhouette reads as at a hundred feet. Blue col-erase to build it, graphite or ink to resolve it, colour last.</p>
+      <p>Outside of drawing, I work in machine learning and data science. Art is the part of my week that isn't at a keyboard.</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="num">{{ work_count }}</div><div class="lbl mono">PIECES SHOWN</div></div>
+      <div class="stat"><div class="num">2022</div><div class="lbl mono">STARTED SHARING WORK</div></div>
+      <div class="stat"><div class="num">{{ medium_count }}</div><div class="lbl mono">MEDIUMS USED</div></div>
+      <div class="stat"><div class="num">0</div><div class="lbl mono">FORMAL LESSONS</div></div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="contact-row">
+      <h2>Have a commission or just want to talk shop?</h2>
+      <div class="contact-links">
+        <a href="mailto:shalin03bhavsar@gmail.com">shalin03bhavsar@gmail.com</a>
+        <a href="https://www.instagram.com/shaalin0203/" onclick="return true;">Instagram ↗</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>Shalin Bhavsar — Pencil &amp; Ink</span>
+      <span class="mono">Django + PostgreSQL</span>
+    </div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">×</button>
+  <div class="lightbox-inner">
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-cap">
+      <h3 id="lightboxTitle"></h3>
+      <span id="lightboxMeta"></span>
+    </div>
+  </div>
+</div>
+
+<script id="worksData" type="application/json">{{ works_json|safe }}</script>
+<script src="{% static 'gallery/site.js' %}"></script>
+</body>
+</html>
