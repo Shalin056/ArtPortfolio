@@ -188,8 +188,15 @@ footer{background:var(--paper);padding:64px 0 40px;}
 }
 .contact-row h2{font-size:30px;max-width:14ch;}
 .contact-links{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
-.contact-links a{text-decoration:none;font-size:15px;border-bottom:1px solid var(--line-dark);padding-bottom:1px;}
-.contact-links a:hover{color:var(--ink);border-color:var(--ink);}
+/* Icon and label sit on one line; the underline stays under the label only,
+   so it doesn't run beneath the icon. */
+.contact-links a{text-decoration:none;font-size:15px;display:inline-flex;align-items:center;gap:9px;border:0;}
+.contact-links a svg{width:18px;height:18px;flex:none;color:var(--text-mute);transition:color .15s ease;}
+.contact-links a span{border-bottom:1px solid var(--line-dark);padding-bottom:1px;}
+.contact-links a:hover{color:var(--ink);}
+.contact-links a:hover svg{color:var(--ink);}
+.contact-links a:hover span{border-color:var(--ink);}
+.contact-links a:focus-visible{outline:2px solid var(--ink);outline-offset:4px;border-radius:2px;}
 .foot-bottom{display:flex;justify-content:space-between;font-size:12px;color:var(--text-mute);flex-wrap:wrap;gap:8px;}
 
 .lightbox{
@@ -214,12 +221,35 @@ footer{background:var(--paper);padding:64px 0 40px;}
 }
 @media (max-width:600px){
   .wrap,.hero-inner,.about-inner{padding-left:20px;padding-right:20px;}
-  nav{padding:16px 20px;}
-  .navlinks{display:none;}
+  nav{padding:14px 20px;gap:12px;}
+  .logo{font-size:17px;}
+  /* Shrink the nav rather than hiding it. There is no menu to fall back
+     on, so display:none left phone visitors with no way to reach About
+     or Contact. */
+  .navlinks{gap:16px;font-size:12.5px;flex:none;}
+  /* Touch targets: 24px of text is hard to hit with a thumb. Padding
+     brings each link to roughly 44px without changing how it looks. */
+  .navlinks a{padding:11px 0;}
+  .contact-links a{padding:9px 0;}
+  .filter-btn{padding:10px 16px;}
   .gallery{grid-template-columns:1fr;}
+  .hero-inner{padding-top:56px;padding-bottom:56px;gap:36px;}
   .hero h1{font-size:32px;}
+  .hero p.lead{font-size:16px;}
+  section{padding:60px 0;}
+  .section-head h2{font-size:28px;}
+  .about-inner{padding-top:60px;padding-bottom:60px;gap:40px;}
+  .stat-grid{gap:20px;}
+  .stat .num{font-size:31px;}
   .contact-row{flex-direction:column;align-items:flex-start;}
   .contact-links{align-items:flex-start;}
+  .contact-row h2{font-size:26px;}
+  .lightbox{padding:16px;}
+  .lightbox-close{top:10px;right:14px;}
+}
+@media (max-width:360px){
+  .navlinks{gap:12px;font-size:12px;}
+  .logo{font-size:16px;}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none !important;scroll-behavior:auto !important;}
