@@ -77,7 +77,7 @@ WORKS = [
          alt="Graphite drawing of a five-figure cast standing together on one scale line",
          desc="A five-figure cast staged on one scale line."),
     dict(slug="corps-group-shot", file="gl-corps.jpg", section=S,
-         title="Corps Group Shot", medium="graphite", date="May 2026",
+         title="Corps Group Shot", medium="graphite", date="September 2026",
          alt="Graphite group drawing of seven masked and armoured figures stacked together",
          desc="Seven figures stacked into a single reading silhouette."),
     dict(slug="animal-studies", file="animal-studies.jpg", section=S,
@@ -114,18 +114,20 @@ WORKS = [
          title="Magneto", medium="coloured-pencil", date="August 2026",
          alt="Coloured pencil bust of a bearded man in a red and blue helmet",
          desc="Helmet bust in coloured pencil."),
-    dict(slug="iron-man-plate-study", file="iron-man.jpg", section=R,
-         title="Iron Man — Plate Study", medium="ink", date="March 2026",
-         alt="Inked armour study broken into plates, with a separate torso detail",
-         desc="Armour broken into plates, with a separate torso detail."),
+    dict(slug="john-stewart", file="john-stewart.jpg", section=R,
+         title="John Stewart", medium="graphite", date="August 2026",
+         alt="Graphite drawing on black of a bearded Green Lantern mid-punch, "
+             "the ring flaring at his fist",
+         desc="Worked light-out-of-dark: the figure is what the graphite leaves behind."),
     dict(slug="daredevil", file="daredevil.jpg", section=R,
          title="Daredevil", medium="ink", date="April 2026",
          alt="Inked figure in a horned mask and segmented suit holding two batons",
          desc="Inked figure with the suit seams carried through the pose."),
-    dict(slug="gambit", file="gambit.jpg", section=R, portrait=True,
-         title="Gambit", medium="coloured-pencil", date="August 2026",
-         alt="Coloured pencil bust of a red-haired man in a high-collared brown coat",
-         desc="Coat, collar and charged card in coloured pencil."),
+    dict(slug="captain-marvel", file="captain-marvel.jpg", section=R,
+         title="Captain Marvel", medium="coloured-pencil", date="October 2026",
+         alt="Coloured pencil full figure of an armoured woman in red, gold and blue, "
+             "energy flaring from both fists",
+         desc="Hard-surface armour over a female figure, with the light sourced from her hands."),
 ]
 
 
