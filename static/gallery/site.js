@@ -11,7 +11,7 @@ function makeCard(w){
     <div class="imgwrap"><img src="${w.image}" alt="${escapeHtml(w.display_alt)}" loading="lazy"></div>
     <div class="card-meta">
       <h3>${escapeHtml(w.title)}</h3>
-      <span class="tag">${escapeHtml(w.medium_label || w.medium)} · ${escapeHtml(w.date_display || '')}</span>
+      <span class="tag">${escapeHtml(w.date_display || '')}</span>
     </div>
   `;
   const img = card.querySelector('.imgwrap');
@@ -82,7 +82,7 @@ function openLightbox(w){
   document.getElementById('lightboxImg').alt = w.display_alt;
   document.getElementById('lightboxTitle').textContent = w.title;
   document.getElementById('lightboxMeta').textContent =
-    (w.medium_label || w.medium) + ' · ' + (w.date_display || '') +
+    (w.date_display || '') +
     (w.description ? '. ' + w.description : '');
   lightbox.classList.add('open');
 }
