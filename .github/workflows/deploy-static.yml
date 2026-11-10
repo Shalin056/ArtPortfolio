@@ -1,0 +1,78 @@
+name: Deploy static site
+
+# Builds the public gallery and publishes it to Cloudflare Pages.
+#
+# The build is self-contained: it creates a throwaway SQLite database,
+# loads the curated selection from seed_images/, renders the page, and
+# ships the result. No database server and no image host are involved,
+# which is why the public site has nothing that can sleep or expire.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - ".github/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-static
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Two ways to build, decided by whether the DATABASE_URL secret exists.
+      #
+      # Without it, the build is self-contained: a throwaway SQLite database
+      # seeded from seed_images/, so the repo is the source of truth.
+      #
+      # With it, the build reads the live Neon database the Render admin
+      # writes to, so anything added through /admin reaches the public site
+      # on the next run. Migrations are left to Render's release command
+      # rather than run against the live database from here.
+      - name: Build the gallery
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+        run: |
+          if [ -n "$DATABASE_URL" ]; then
+            echo "Building from the live database."
+          else
+            echo "Building from the repository seed."
+            python manage.py migrate --noinput
+            python manage.py load_portfolio --retire
+          fi
+          python manage.py export_static
+
+      # Fail the build rather than publish an empty gallery. Media is not
+      # checked: with Cloudinary configured the images live there, not in
+      # dist/, and the page references them by URL.
+      - name: Check the export
+        run: |
+          test -f dist/index.html
+          pieces=$(grep -o '"slug"' dist/index.html | wc -l)
+          echo "pieces on the page: $pieces"
+          test "$pieces" -gt 0
+          du -sh dist
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=shalin-portfolio

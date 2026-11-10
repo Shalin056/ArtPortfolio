@@ -22,6 +22,9 @@ edit, or remove pieces.
 - **`static/gallery/`** — the site's CSS/JS (same graphite-and-paper
   visual design as before, now driven by the database instead of a
   hardcoded list).
+- **`gallery/management/commands/export_static.py`** — renders the
+  public page to `dist/` as plain files (HTML, CSS, JS, images) so it
+  can be hosted anywhere static, with no server at request time.
 - **`portfolio_site/settings.py`** — reads all environment-specific
   config (secret key, database, media storage) from environment
   variables, so the same code runs locally on SQLite and in
@@ -79,70 +82,143 @@ Notes:
 
 ## Deploying for free
 
-This is set up for **Render** (free web hosting) + **Neon** (free
-PostgreSQL) + **Cloudinary** (free image storage). Render's free tier
-wipes its local disk on every redeploy, so Neon and Cloudinary are
-what make your database and images actually persist.
+Two pieces, both on permanently free tiers:
 
-### 1. Create a free PostgreSQL database on Neon
+| | What it is | Who uses it | Sleeps? |
+|---|---|---|---|
+| **Public site** | Static export on Cloudflare Pages | Anyone you send the link to | Never |
+| **Admin** | Django on Render, database on Neon | Only you | Yes, and that's fine |
 
-1. Sign up at [neon.tech](https://neon.tech) (free tier, no card
-   required).
-2. Create a project. Copy the connection string it gives you — it
-   looks like `postgres://USER:PASSWORD@HOST/DBNAME?sslmode=require`.
+The public site is the link you hand to a studio, so it has to be
+instant. It is a folder of plain files with no database and no server
+behind it, which means nothing to spin up, nothing to expire and no
+cold start.
 
-### 2. Create a free image store on Cloudinary
+The admin is a tool for one person. It can take a minute to wake up
+because the only one waiting is you.
 
-1. Sign up at [cloudinary.com](https://cloudinary.com) (free tier).
-2. From your dashboard, copy the **CLOUDINARY_URL** value — it looks
-   like `cloudinary://API_KEY:API_SECRET@CLOUD_NAME`.
+### Part 1: the public site
 
-### 3. Push this project to a GitHub repo
+Everything the build needs is already in this repo, so this part takes
+one account.
 
-Render deploys from a Git repo, so this folder needs to be pushed to
-GitHub (or GitLab) first.
+1. Sign up at [cloudflare.com](https://cloudflare.com) (no card).
+2. **Workers & Pages → Create → Pages → Connect to Git**, pick this
+   repo. Project name `shalin-portfolio` (it must match the name in
+   `.github/workflows/deploy-static.yml`).
+3. When it asks for a build command, leave it empty and set the output
+   directory to `dist`. GitHub Actions does the building, not
+   Cloudflare.
+4. In Cloudflare, **My Profile → API Tokens → Create Token**, using
+   the *Edit Cloudflare Workers* template. Copy the token. Copy your
+   Account ID from the Workers & Pages sidebar too.
+5. In GitHub, **Settings → Secrets and variables → Actions**, add:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+6. Push to `main`, or run the workflow by hand from the Actions tab.
 
-### 4. Create a free web service on Render
+The site is then live at `https://shalin-portfolio.pages.dev`, and
+every push to `main` redeploys it. A custom domain is free under the
+project's **Custom domains** tab, HTTPS included.
 
-1. Sign up at [render.com](https://render.com).
-2. **New → Web Service**, connect your repo.
-3. Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput`
-4. Start command: `gunicorn portfolio_site.wsgi`
-5. Choose the **Free** instance type.
-6. Under **Environment**, add:
-   - `SECRET_KEY` — any long random string
-   - `DEBUG` — `False`
-   - `ALLOWED_HOSTS` — `your-app-name.onrender.com`
-   - `DATABASE_URL` — the Neon connection string from step 1
-   - `CLOUDINARY_URL` — the Cloudinary URL from step 2
-7. Deploy. Render runs migrations automatically via the `release`
-   line in `Procfile`.
-8. Once it's live, open a shell from the Render dashboard (or run
-   locally against `DATABASE_URL` pointed at Neon) and run:
+To see exactly what will be published, build it locally:
+
+```bash
+python manage.py export_static
+python -m http.server 8055 --directory dist
+```
+
+### Part 2: the admin
+
+Only worth doing if you want to add pieces from a browser instead of
+editing `load_portfolio.py`. Skip it otherwise; Part 1 stands alone.
+
+1. **Database.** Sign up at [neon.tech](https://neon.tech), create a
+   project, copy the connection string
+   (`postgres://USER:PASSWORD@HOST/DBNAME?sslmode=require`). The free
+   plan does not expire. Render's own free Postgres *does*, after 30
+   days, which is why the database lives here instead.
+2. **Image storage.** Sign up at
+   [cloudinary.com](https://cloudinary.com) and copy the
+   **CLOUDINARY_URL** (`cloudinary://API_KEY:API_SECRET@CLOUD_NAME`).
+   Render's free disk is wiped on every restart, so without this any
+   image you upload through the admin disappears.
+3. **Web service.** At [render.com](https://render.com): **New → Web
+   Service**, connect the repo.
+   - Build: `pip install -r requirements.txt && python manage.py collectstatic --noinput`
+   - Start: `gunicorn portfolio_site.wsgi`
+   - Instance type: **Free**
+   - Environment variables: `SECRET_KEY` (any long random string),
+     `DEBUG=False`, `ALLOWED_HOSTS=your-app.onrender.com`,
+     `DATABASE_URL`, `CLOUDINARY_URL`
+   - Migrations run automatically from the `release` line in `Procfile`.
+4. Create your login and load the existing pieces, from Render's shell
+   or locally with `DATABASE_URL` pointed at Neon:
+
    ```bash
    python manage.py createsuperuser
-   python manage.py load_portfolio   # loads the 31 curated pieces
+   python manage.py load_portfolio
    ```
 
-Your site is now live at `https://your-app-name.onrender.com`, and
-`/admin/` is where you'll add every new piece from here on.
+### Keeping the two in sync
 
-**Free-tier note:** Render's free web service spins down after periods
-of inactivity and takes ~30-60 seconds to wake back up on the next
-visit. That's normal on the free tier — upgrading to a paid instance
-removes the spin-down, if it ever bothers you.
+This is the part that matters. By default the static build reads the
+**repo**, so work added through the admin would never appear publicly.
+
+To connect them, add the same two values as GitHub Actions secrets:
+
+- `DATABASE_URL`
+- `CLOUDINARY_URL`
+
+The workflow then skips the seed and builds from the live database
+instead. After adding a piece in the admin, trigger **Deploy static
+site** from the Actions tab and the public site catches up.
+
+Without those secrets the admin is a scratchpad: real, usable, but
+invisible to visitors.
+
+### What each free tier actually gives you
+
+Checked November 2026; these change, so confirm before relying on them.
+
+- **Cloudflare Pages:** unlimited bandwidth on static assets, 500
+  builds a month, 20,000 files and 25 MiB per file. This site is about
+  13 MB across ~45 files.
+- **Neon:** no expiry, 1 GB storage per project, 100 compute-hours a
+  month, suspends rather than bills when exceeded. Compute sleeps after
+  5 minutes idle.
+- **Cloudinary:** 25 credits a month, where a credit is roughly 1 GB of
+  storage or 1 GB of bandwidth. The whole image set is 12 MB.
+- **Render free:** 512 MB RAM, 750 instance-hours a month per
+  workspace, spins down after 15 minutes idle and takes 30 to 60
+  seconds to wake. No persistent disk. Render's docs say not to use
+  free instances for production, which is the other reason the public
+  site is not on it.
 
 ## Adding new artwork
 
-Once deployed, this is the whole workflow:
+Nothing reaches the public site until the static build runs. That is
+the trade for a site that never sleeps.
 
-1. Go to `https://your-app-name.onrender.com/admin/`
-2. Log in with your superuser account
-3. **Artworks → Add artwork**
-4. Upload the image, set title/medium/date, save
+**Through the repo** (no accounts beyond GitHub, and the build stays
+reproducible):
 
-It appears on the public site immediately — no code changes, no
-redeploying.
+1. Put the image in `seed_images/portfolio/`, resized to about 1800px
+   on the long edge.
+2. Add an entry to `WORKS` in
+   `gallery/management/commands/load_portfolio.py`.
+3. Commit and push. The workflow rebuilds and redeploys.
+
+**Through the admin** (needs Part 2, and the two sync secrets):
+
+1. Go to `https://your-app-name.onrender.com/admin/`, log in.
+2. **Artworks → Add artwork**, upload the image, fill in the fields,
+   save.
+3. Run **Deploy static site** from the repo's Actions tab.
+
+The second route is quicker in the moment, but the piece then exists
+only in Neon and Cloudinary, not in this repo. The first keeps
+everything in version control.
 
 ## Switching to MSSQL later
 
