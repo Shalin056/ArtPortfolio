@@ -98,12 +98,15 @@ nav{
 .btn-ghost:hover{border-color:var(--text-inv);}
 
 .hero-figure{position:relative;min-height:200px;}
+/* Square to the page. A tilt reads as a decorative snapshot, which is
+   the wrong note for work that was drawn on a flat sheet. */
 .hero-figure .frame{
   position:relative;background:var(--paper);padding:14px 14px 44px;
   box-shadow:0 24px 60px rgba(0,0,0,0.45);
-  transform:rotate(1.2deg);
 }
-.hero-figure img{width:100%;filter:grayscale(1) contrast(1.05);min-height:260px;background:#ddd;}
+/* No grayscale filter: the hero is whichever piece is first, and that
+   may be a colour one. */
+.hero-figure img{width:100%;min-height:260px;background:#ddd;}
 .hero-figure figcaption{
   position:absolute;bottom:14px;left:14px;right:14px;
   font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-mute);
