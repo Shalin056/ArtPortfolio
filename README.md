@@ -29,21 +29,53 @@ edit, or remove pieces.
 
 ## Run it locally
 
-```bash
-python3 -m venv venv
-source venv/bin/activate          # Windows: venv\Scripts\activate
+Nothing external is needed: no database to install, no accounts, no
+keys. `DEBUG` defaults to on, the database falls back to a SQLite file
+in this folder, and images are served straight off disk.
+
+**Windows (PowerShell)**, from this folder:
+
+```powershell
+python -m venv venv
+venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-
-cp .env.example .env              # defaults to local SQLite, no DB setup needed
-
-python3 manage.py migrate
-python3 manage.py createsuperuser # your admin login
-python3 manage.py seed_artwork    # optional: loads the 12 pieces already in seed_images/
-python3 manage.py runserver
+copy .env.example .env
+python manage.py migrate
+python manage.py load_portfolio
+python manage.py runserver 8042
 ```
 
-Visit `http://127.0.0.1:8000/` for the site and
-`http://127.0.0.1:8000/admin/` to log in and manage artwork.
+**macOS / Linux**:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python3 manage.py migrate
+python3 manage.py load_portfolio
+python3 manage.py runserver 8042
+```
+
+Then open `http://127.0.0.1:8042/`.
+
+Notes:
+
+- **`.env` is optional locally.** Every setting has a working default,
+  so the site runs without one. Copying `.env.example` just gives you
+  somewhere to put a real `SECRET_KEY`. It is gitignored, so a fresh
+  clone won't have it.
+- **`load_portfolio`** loads the 31 curated pieces from
+  `seed_images/portfolio/`. It matches on slug and updates in place, so
+  running it again is safe and won't duplicate anything. Add `--retire`
+  to unpublish anything outside that selection.
+- **`seed_artwork`** is the older, smaller seed command, kept only for
+  reference. Use `load_portfolio`.
+- **The port is deliberate.** 8000 is taken by another project on this
+  machine, so pass a port explicitly. Any free one works.
+- **Admin:** run `python manage.py createsuperuser` once, then log in at
+  `http://127.0.0.1:8042/admin/` to add or edit pieces through the
+  browser instead of editing `load_portfolio.py`.
 
 ## Deploying for free
 
