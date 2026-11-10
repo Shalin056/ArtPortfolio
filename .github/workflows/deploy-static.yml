@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: read
+  deployments: write
 
 concurrency:
   group: deploy-static
@@ -75,4 +76,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          # The Pages project must already exist. Create it once as a
+          # Direct Upload project; this command publishes into it.
           command: pages deploy dist --project-name=shalin-portfolio

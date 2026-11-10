@@ -103,19 +103,22 @@ Everything the build needs is already in this repo, so this part takes
 one account.
 
 1. Sign up at [cloudflare.com](https://cloudflare.com) (no card).
-2. **Workers & Pages → Create → Pages → Connect to Git**, pick this
-   repo. Project name `shalin-portfolio` (it must match the name in
-   `.github/workflows/deploy-static.yml`).
-3. When it asks for a build command, leave it empty and set the output
-   directory to `dist`. GitHub Actions does the building, not
-   Cloudflare.
-4. In Cloudflare, **My Profile → API Tokens → Create Token**, using
-   the *Edit Cloudflare Workers* template. Copy the token. Copy your
-   Account ID from the Workers & Pages sidebar too.
-5. In GitHub, **Settings → Secrets and variables → Actions**, add:
-   - `CLOUDFLARE_API_TOKEN`
-   - `CLOUDFLARE_ACCOUNT_ID`
-6. Push to `main`, or run the workflow by hand from the Actions tab.
+2. Build the folder locally: `python manage.py export_static`.
+3. **Workers & Pages → Create → Pages → Upload assets.** Name the
+   project `shalin-portfolio` (it must match the name in
+   `.github/workflows/deploy-static.yml`), drag in the `dist` folder,
+   deploy. This creates a *Direct Upload* project, which is what the
+   workflow publishes into. Do not use **Connect to Git**: that makes
+   Cloudflare do the building, and the two fight over the same project.
+4. **My Profile → API Tokens → Create Token → Custom token.**
+   Permission: **Account → Cloudflare Pages → Edit**. Nothing else.
+   The Workers templates do not cover Pages.
+5. Copy your Account ID from the URL of the Workers & Pages dashboard,
+   or from the API section of any zone's overview page.
+6. In GitHub, **Settings → Secrets and variables → Actions → New
+   repository secret**, add `CLOUDFLARE_API_TOKEN` and
+   `CLOUDFLARE_ACCOUNT_ID`.
+7. Push to `main`, or run the workflow by hand from the Actions tab.
 
 The site is then live at `https://shalin-portfolio.pages.dev`, and
 every push to `main` redeploys it. A custom domain is free under the
