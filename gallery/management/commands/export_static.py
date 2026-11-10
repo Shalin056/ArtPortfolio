@@ -62,7 +62,7 @@ class Command(BaseCommand):
             ignore_patterns=["admin", "rest_framework"],
         )
 
-        html = self._render(host)
+        html = self._render(host) + self._stamp()
         (out / "index.html").write_text(html, encoding="utf-8")
         (out / "404.html").write_text(html, encoding="utf-8")
 
@@ -75,6 +75,28 @@ class Command(BaseCommand):
             f"{static_files} static file(s), {media_files} media file(s), "
             f"{size / 1e6:.1f} MB total."
         ))
+
+    def _stamp(self):
+        """A build marker, so you can tell which deploy a page came from.
+
+        Without it, two builds of unchanged content are indistinguishable
+        once served, and there is no way to check whether a URL is showing
+        the latest deploy or a stale one.
+        """
+        import datetime, os, subprocess
+
+        sha = os.environ.get("GITHUB_SHA", "")
+        if not sha:
+            try:
+                sha = subprocess.run(
+                    ["git", "rev-parse", "HEAD"],
+                    capture_output=True, text=True, timeout=5,
+                    cwd=settings.BASE_DIR,
+                ).stdout.strip()
+            except Exception:
+                sha = "unknown"
+        when = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return f"\n<!-- build {sha[:12] or 'unknown'} at {when} -->\n"
 
     def _render(self, host):
         response = Client(headers={"host": host}).get("/")
