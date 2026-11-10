@@ -121,7 +121,7 @@ GitHub (or GitLab) first.
    locally against `DATABASE_URL` pointed at Neon) and run:
    ```bash
    python manage.py createsuperuser
-   python manage.py seed_artwork   # if you haven't added pieces yet
+   python manage.py load_portfolio   # loads the 31 curated pieces
    ```
 
 Your site is now live at `https://your-app-name.onrender.com`, and
