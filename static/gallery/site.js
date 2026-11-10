@@ -83,7 +83,7 @@ function openLightbox(w){
   document.getElementById('lightboxTitle').textContent = w.title;
   document.getElementById('lightboxMeta').textContent =
     (w.medium_label || w.medium) + ' · ' + (w.date_display || '') +
-    (w.description ? ' — ' + w.description : '');
+    (w.description ? '. ' + w.description : '');
   lightbox.classList.add('open');
 }
 document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
